@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    function isMember() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+    }
+
+    // The group code of the signed-in user.
+    function myGroup() {
+      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.groupId;
+    }
+
+    function sameGroup(gid) { return isMember() && myGroup() == gid; }
+
+    function okRating(v) { return v is int && v >= 0 && v <= 5; }
+
+    function okEntry(d) {
+      return d.list in ['watching', 'watched', 'dropped']
+        && okRating(d.overall) && okRating(d.acting)
+        && okRating(d.cinematography) && okRating(d.plot)
+        && okRating(d.aesthetic) && okRating(d.sound)
+        && d.suggest is bool;
+    }
+
+    // A group is just a document whose ID is the code. Anyone signed in can
+    // create one, nobody can read, change or delete one from the app.
+    // (Joining = creating a profile that points to an existing group.)
+    match /groups/{code} {
+      allow create: if signedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    match /profiles/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || sameGroup(resource.data.groupId));
+      allow create: if signedIn() && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/groups/$(request.resource.data.groupId));
+      allow update: if signedIn() && request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['groupId']);
+      allow delete: if false;
+    }
+
+    match /entries/{id} {
+      allow read: if sameGroup(resource.data.groupId);
+      allow create: if isMember()
+        && request.resource.data.groupId == myGroup()
+        && request.resource.data.uid == request.auth.uid
+        && id == request.auth.uid + '_' + request.resource.data.mediaType + '_' + string(request.resource.data.tmdbId)
+        && okEntry(request.resource.data);
+      allow update: if isMember()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.groupId == resource.data.groupId
+        && okEntry(request.resource.data);
+      allow delete: if isMember() && resource.data.uid == request.auth.uid;
+    }
+  }
+}
