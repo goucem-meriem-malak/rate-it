@@ -28,14 +28,15 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/01-login.png" width="200" alt="Sign in"><br><sub>Sign in</sub></td>
-    <td align="center"><img src="docs/screenshots/02-signup.png" width="200" alt="Create account"><br><sub>Create a group or join with a code</sub></td>
-    <td align="center"><img src="docs/screenshots/03-feed.png" width="200" alt="Feed"><br><sub>Group feed</sub></td>
+    <td align="center"><img src="docs/screenshots/login.jpg" width="200" alt="Sign in"><br><sub>Sign in</sub></td>
+    <td align="center"><img src="docs/screenshots/signup.jpg" width="200" alt="Create account"><br><sub>Create a group or join with a code</sub></td>
+    <td align="center"><img src="docs/screenshots/feed.jpg" width="200" alt="Feed"><br><sub>Group feed</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/04-search.png" width="200" alt="Search"><br><sub>Search shows and movies</sub></td>
-    <td align="center"><img src="docs/screenshots/05-title.png" width="200" alt="Title details"><br><sub>Details and what friends say</sub></td>
-    <td align="center"><img src="docs/screenshots/06-profile.png" width="200" alt="Profile"><br><sub>Profile and lists</sub></td>
+    <td align="center"><img src="docs/screenshots/search.jpg" width="200" alt="Search"><br><sub>Search shows and movies</sub></td>
+    <td align="center"><img src="docs/screenshots/rating.jpg" width="200" alt="Title details"><br><sub>Details and what friends say</sub></td>
+    <td align="center"><img src="docs/screenshots/profile1.jpg" width="200" alt="Profile"><br><sub>Profile and lists 1</sub></td>
+    <td align="center"><img src="docs/screenshots/profile2.jpg" width="200" alt="Profile"><br><sub>Profile and lists 2</sub></td>
   </tr>
 </table>
 
