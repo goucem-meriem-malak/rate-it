@@ -26,7 +26,7 @@ class _TitleScreenState extends State<TitleScreen> {
   @override
   Widget build(BuildContext context) {
     final info = widget.info;
-    return Scaffold(
+    return GlassScaffold(
       appBar: AppBar(),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _entries,
@@ -43,7 +43,7 @@ class _TitleScreenState extends State<TitleScreen> {
                 ...entries.where((e) => e.uid != me),
               ];
               return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,8 +77,11 @@ class _TitleScreenState extends State<TitleScreen> {
                     ],
                   ),
                   if (info.overview.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Text(info.overview, style: const TextStyle(height: 1.4)),
+                    const SizedBox(height: 18),
+                    Glass(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(info.overview, style: const TextStyle(height: 1.45)),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   FilledButton.icon(
@@ -117,21 +120,17 @@ class _EntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final e = entry;
     final isMe = e.uid == Db.uid;
+    // The four sub-ratings, in this order.
     final criteria = <String, int>{
-      'acting': e.acting,
-      'cinematography': e.cinematography,
       'plot': e.plot,
+      'acting': e.acting,
+      'sound': e.sound, // shown as "Pacing"
       'aesthetic': e.aesthetic,
-      'sound': e.sound,
     }..removeWhere((_, v) => v == 0);
     final name = profile?.name ?? '?';
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+    return Glass(
+      margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: context.hairline),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

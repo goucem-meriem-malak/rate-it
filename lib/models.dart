@@ -50,7 +50,7 @@ class Entry {
   final String uid;
   final TitleInfo info;
   final String list; // watching | watched | dropped
-  final int overall, acting, cinematography, plot, aesthetic, sound; // 0 = not rated
+  final int overall, acting, plot, aesthetic, sound; // 0 = not rated. 'sound' = pacing
   final String review;
   final bool suggest;
   final DateTime? updatedAt;
@@ -61,7 +61,6 @@ class Entry {
     required this.list,
     this.overall = 0,
     this.acting = 0,
-    this.cinematography = 0,
     this.plot = 0,
     this.aesthetic = 0,
     this.sound = 0,
@@ -78,7 +77,6 @@ class Entry {
         'list': list,
         'overall': overall,
         'acting': acting,
-        'cinematography': cinematography,
         'plot': plot,
         'aesthetic': aesthetic,
         'sound': sound,
@@ -95,7 +93,6 @@ class Entry {
       list: (m['list'] as String?) ?? 'watching',
       overall: _i(m['overall']),
       acting: _i(m['acting']),
-      cinematography: _i(m['cinematography']),
       plot: _i(m['plot']),
       aesthetic: _i(m['aesthetic']),
       sound: _i(m['sound']),

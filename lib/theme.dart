@@ -20,38 +20,50 @@ ThemeMode themeModeFromName(String? name) => ThemeMode.values
 /// Colors that change between light and dark. Use as context.muted, etc.
 extension AppColors on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
-  Color get page => Theme.of(this).scaffoldBackgroundColor;
+  Color get page => isDark ? const Color(0xFF0B0A0E) : const Color(0xFFFFF7FB);
   Color get muted => isDark ? const Color(0xFF9B9BA7) : const Color(0xFF737380);
   Color get hairline => isDark ? const Color(0xFF2B2B32) : const Color(0xFFEAEAEE);
-  Color get fieldFill => isDark ? const Color(0xFF1E1E24) : const Color(0xFFF4F4F7);
+  Color get fieldFill => isDark ? const Color(0xFF1E1E24) : const Color(0xFFF1E6EC);
   Color get pinkSoft => isDark ? const Color(0xFF3B1428) : const Color(0xFFFDE7F1);
+  // Glass: translucent fill, bright edge, soft pink glow.
+  Color get glassFill => isDark ? const Color(0x14FFFFFF) : const Color(0xB3FFFFFF);
+  Color get glassBorder => isDark ? const Color(0x26FFFFFF) : const Color(0xFFFFFFFF);
+  Color get glassShadow => isDark ? const Color(0x33000000) : const Color(0x1AEC008C);
+  Color get pinkGlass => isDark ? const Color(0x40EC008C) : const Color(0x26EC008C);
 }
 
-/// Rounded text-field look (like Instagram). The fill color comes from the theme.
-InputDecoration fieldDec({String? label, String? hint, Widget? prefix}) {
+/// Rounded glass text-field look. Colors come from the current theme.
+InputDecoration fieldDec(BuildContext context,
+    {String? label, String? hint, Widget? prefix, Widget? suffix}) {
+  final edge = context.isDark ? const Color(0x26FFFFFF) : const Color(0x33EC008C);
   OutlineInputBorder b(Color c, double w) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: c == Colors.transparent ? BorderSide.none : BorderSide(color: c, width: w),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: c, width: w),
       );
   return InputDecoration(
     labelText: label,
     hintText: hint,
     prefixIcon: prefix,
+    suffixIcon: suffix,
     filled: true,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    border: b(Colors.transparent, 0),
-    enabledBorder: b(Colors.transparent, 0),
+    fillColor: context.glassFill,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+    border: b(edge, 1),
+    enabledBorder: b(edge, 1),
     focusedBorder: b(brand, 1.5),
   );
 }
 
 ThemeData buildTheme(Locale locale, Brightness brightness) {
   final dark = brightness == Brightness.dark;
-  final bg = dark ? const Color(0xFF0E0E11) : Colors.white;
+  final bg = dark ? const Color(0xFF0B0A0E) : const Color(0xFFFFF7FB);
   final ink = dark ? const Color(0xFFF3F3F6) : const Color(0xFF111111);
-  final field = dark ? const Color(0xFF1E1E24) : const Color(0xFFF4F4F7);
+  final field = dark ? const Color(0xFF1E1E24) : const Color(0xFFF1E6EC);
   final line = dark ? const Color(0xFF2B2B32) : const Color(0xFFEAEAEE);
   final soft = dark ? const Color(0xFF3B1428) : const Color(0xFFFDE7F1);
+  final glass = dark ? const Color(0x14FFFFFF) : const Color(0xB3FFFFFF);
+  final glassLine = dark ? const Color(0x26FFFFFF) : const Color(0xFFFFFFFF);
+  final pinkGlass = dark ? const Color(0x40EC008C) : const Color(0x26EC008C);
   final mutedColor = dark ? const Color(0xFF9B9BA7) : const Color(0xFF737380);
 
   final scheme = ColorScheme.fromSeed(
@@ -82,7 +94,7 @@ ThemeData buildTheme(Locale locale, Brightness brightness) {
   return base.copyWith(
     textTheme: textTheme,
     appBarTheme: AppBarTheme(
-      backgroundColor: bg,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -95,17 +107,20 @@ ThemeData buildTheme(Locale locale, Brightness brightness) {
       style: FilledButton.styleFrom(
         backgroundColor: brand,
         foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 6,
+        shadowColor: const Color(0x66EC008C),
+        minimumSize: const Size.fromHeight(52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: ink,
-        minimumSize: const Size.fromHeight(48),
-        side: BorderSide(color: line),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: glass,
+        minimumSize: const Size.fromHeight(50),
+        side: BorderSide(color: glassLine),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     ),
@@ -116,15 +131,25 @@ ThemeData buildTheme(Locale locale, Brightness brightness) {
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: field,
-      selectedColor: soft,
-      side: BorderSide.none,
+      backgroundColor: glass,
+      selectedColor: pinkGlass,
+      side: BorderSide(color: glassLine),
       shape: const StadiumBorder(),
       labelStyle: TextStyle(fontWeight: FontWeight.w600, color: ink),
       checkmarkColor: brand,
     ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        backgroundColor: glass,
+        selectedBackgroundColor: pinkGlass,
+        foregroundColor: ink,
+        selectedForegroundColor: ink,
+        side: BorderSide(color: glassLine),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: bg,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       indicatorColor: Colors.transparent,
       elevation: 0,

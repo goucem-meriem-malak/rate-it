@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui' show ImageFilter;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,281 @@ import 'models.dart';
 import 'screens/title_screen.dart';
 import 'services.dart';
 import 'theme.dart';
+
+// ---------------------------------------------------------------------------
+// Glass building blocks
+// ---------------------------------------------------------------------------
+
+/// Soft pink glow behind every screen.
+class GlassBackground extends StatelessWidget {
+  final Widget child;
+  const GlassBackground({super.key, required this.child});
+
+  Widget _orb(int argb, double size) => IgnorePointer(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+                colors: [Color(argb), Color(argb & 0x00FFFFFF)]),
+          ),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = context.isDark;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: context.page),
+        Positioned(top: -140, right: -120, child: _orb(dark ? 0x59EC008C : 0x40FF5CAA, 380)),
+        Positioned(bottom: -170, left: -150, child: _orb(dark ? 0x40FF4DA6 : 0x33EC008C, 430)),
+        Positioned(top: 280, left: -210, child: _orb(dark ? 0x26FF80C0 : 0x2EFFB3D9, 330)),
+        child,
+      ],
+    );
+  }
+}
+
+/// A Scaffold that sits on the glass background.
+class GlassScaffold extends StatelessWidget {
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+  final Widget? bottomNavigationBar;
+  final bool extendBody;
+  const GlassScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.bottomNavigationBar,
+    this.extendBody = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: extendBody,
+        appBar: appBar,
+        body: body,
+        bottomNavigationBar: bottomNavigationBar,
+      ),
+    );
+  }
+}
+
+/// A frosted panel. Set blur > 0 only where content scrolls behind it.
+class Glass extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? margin;
+  final double radius;
+  final double blur;
+  final Color? tint;
+  const Glass({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+    this.margin,
+    this.radius = 22,
+    this.blur = 0,
+    this.tint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final r = BorderRadius.circular(radius);
+    final box = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: tint ?? context.glassFill,
+        borderRadius: r,
+        border: Border.all(color: context.glassBorder, width: 1),
+      ),
+      child: child,
+    );
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        borderRadius: r,
+        boxShadow: [
+          BoxShadow(color: context.glassShadow, blurRadius: 24, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: blur > 0
+          ? ClipRRect(
+              borderRadius: r,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                child: box,
+              ),
+            )
+          : box,
+    );
+  }
+}
+
+class NavItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  const NavItem(this.icon, this.selectedIcon, this.label);
+}
+
+/// Floating glass bottom bar.
+class GlassNavBar extends StatelessWidget {
+  final int index;
+  final ValueChanged<int> onTap;
+  final List<NavItem> items;
+  const GlassNavBar(
+      {super.key, required this.index, required this.onTap, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(28, 0, 28, 12),
+        child: Glass(
+          radius: 30,
+          blur: 24,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            children: [
+              for (var i = 0; i < items.length; i++)
+                Expanded(
+                  child: Semantics(
+                    label: items[i].label,
+                    button: true,
+                    selected: i == index,
+                    child: InkResponse(
+                      onTap: () => onTap(i),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: i == index ? context.pinkGlass : Colors.transparent,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: Icon(
+                          i == index ? items[i].selectedIcon : items[i].icon,
+                          size: 26,
+                          color: i == index ? brand : context.muted,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shimmer (loading placeholder)
+// ---------------------------------------------------------------------------
+
+class Shimmer extends StatefulWidget {
+  final Widget child; // paint it in solid white; the shimmer colors it
+  const Shimmer({super.key, required this.child});
+
+  @override
+  State<Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1500))
+    ..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = context.isDark;
+    final base = dark ? const Color(0xFF2A2A31) : const Color(0xFFEBDDE5);
+    final highlight = dark ? const Color(0xFF4A4A55) : const Color(0xFFFFFFFF);
+    return AnimatedBuilder(
+      animation: _c,
+      child: widget.child,
+      builder: (context, child) => ShaderMask(
+        blendMode: BlendMode.srcATop,
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [base, highlight, base],
+          stops: const [0.3, 0.5, 0.7],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          transform: _SlideGradient(_c.value),
+        ).createShader(bounds),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _SlideGradient extends GradientTransform {
+  final double progress;
+  const _SlideGradient(this.progress);
+
+  @override
+  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) =>
+      Matrix4.translationValues(bounds.width * (progress * 2 - 1), 0, 0);
+}
+
+/// Placeholder rows shown while a search is loading.
+class SearchSkeleton extends StatelessWidget {
+  const SearchSkeleton({super.key});
+
+  Widget _box(double w, double h, double r) => Container(
+        width: w,
+        height: h,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(r)),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer(
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(26, 8, 26, 0),
+        itemCount: 7,
+        itemBuilder: (_, __) => Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Row(
+            children: [
+              _box(52, 78, 14),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _box(190, 15, 8),
+                    const SizedBox(height: 10),
+                    _box(110, 12, 6),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Posters, stars, avatars
+// ---------------------------------------------------------------------------
 
 class PosterImage extends StatelessWidget {
   final String? path;
@@ -27,17 +303,28 @@ class PosterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: path == null
-          ? _placeholder(context)
-          : Image.network(
-              'https://image.tmdb.org/t/p/w342$path',
-              width: width,
-              height: height,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _placeholder(context),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+              color: context.isDark ? const Color(0x40EC008C) : const Color(0x33EC008C),
+              blurRadius: 16,
+              offset: const Offset(0, 6)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: path == null
+            ? _placeholder(context)
+            : Image.network(
+                'https://image.tmdb.org/t/p/w342$path',
+                width: width,
+                height: height,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _placeholder(context),
+              ),
+      ),
     );
   }
 }
@@ -62,7 +349,7 @@ class StarRating extends StatelessWidget {
             size: size,
             color: i < value
                 ? gold
-                : (context.isDark ? const Color(0xFF3A3A44) : const Color(0xFFD5D5DB)),
+                : (context.isDark ? const Color(0xFF4A4A55) : const Color(0xFFD9CFD6)),
           );
           if (onChanged == null) return star;
           return GestureDetector(
@@ -151,24 +438,25 @@ class PosterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 22, 16, 10),
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
           child: Text(title,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
         ),
         if (items.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(t(context, 'empty_section'),
                 style: TextStyle(color: context.muted)),
           )
         else
           SizedBox(
-            height: 266,
+            height: 270,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              clipBehavior: Clip.none,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
               itemBuilder: (context, i) {
                 final item = items[i];
                 return GestureDetector(
@@ -183,7 +471,7 @@ class PosterSection extends StatelessWidget {
                       children: [
                         PosterImage(
                             path: item.info.posterPath, width: 124, height: 180),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(item.info.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -278,6 +566,10 @@ class ProfileLists extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Logo and launch screen
+// ---------------------------------------------------------------------------
+
 /// The Rate It logo (embedded in logo_data.dart).
 class BrandLogo extends StatelessWidget {
   final double size;
@@ -297,7 +589,7 @@ class BrandLogo extends StatelessWidget {
 
 final Uint8List _logoBytes = base64Decode(kLogoBase64);
 
-/// Launch screen: white background, the logo fades and pops in.
+/// Launch screen: the logo fades and pops in on the glass background.
 /// With animate: false it shows the finished state (used while a profile loads).
 class SplashLoading extends StatefulWidget {
   final bool animate;
@@ -334,7 +626,7 @@ class _SplashLoadingState extends State<SplashLoading>
         .animate(CurvedAnimation(parent: _c, curve: Curves.easeOutBack));
     final fade = CurvedAnimation(
         parent: _c, curve: const Interval(0, 0.6, curve: Curves.easeOut));
-    return Scaffold(
+    return GlassScaffold(
       body: Center(
         child: FadeTransition(
           opacity: fade,

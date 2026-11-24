@@ -19,11 +19,10 @@ class EntryEditScreen extends StatefulWidget {
 class _EntryEditScreenState extends State<EntryEditScreen> {
   late String _list = widget.existing?.list ?? 'watching';
   late int _overall = widget.existing?.overall ?? 0;
-  late int _acting = widget.existing?.acting ?? 0;
-  late int _cine = widget.existing?.cinematography ?? 0;
   late int _plot = widget.existing?.plot ?? 0;
+  late int _acting = widget.existing?.acting ?? 0;
+  late int _pacing = widget.existing?.sound ?? 0; // stored in the 'sound' field
   late int _aesthetic = widget.existing?.aesthetic ?? 0;
-  late int _sound = widget.existing?.sound ?? 0;
   late bool _suggest = widget.existing?.suggest ?? true;
   final _review = TextEditingController();
   bool _pin = false;
@@ -56,11 +55,10 @@ class _EntryEditScreenState extends State<EntryEditScreen> {
       info: widget.info,
       list: _list,
       overall: _overall,
-      acting: _acting,
-      cinematography: _cine,
       plot: _plot,
+      acting: _acting,
+      sound: _pacing,
       aesthetic: _aesthetic,
-      sound: _sound,
       review: _review.text.trim(),
       suggest: _suggest,
     );
@@ -109,62 +107,79 @@ class _EntryEditScreenState extends State<EntryEditScreen> {
   @override
   Widget build(BuildContext context) {
     final info = widget.info;
-    return Scaffold(
+    return GlassScaffold(
       appBar: AppBar(title: Text(info.title)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
         children: [
           Row(
             children: [
               PosterImage(path: info.posterPath, width: 70, height: 105),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text('${info.title}\n${info.year} · ${info.genres.join(', ')}'),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(t(context, 'list'), style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final k in ['watching', 'watched', 'dropped'])
-                ChoiceChip(
-                  label: Text(t(context, k)),
-                  selected: _list == k,
-                  onSelected: (_) => setState(() => _list = k),
+          const SizedBox(height: 20),
+          Glass(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t(context, 'list'),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final k in ['watching', 'watched', 'dropped'])
+                      ChoiceChip(
+                        label: Text(t(context, k)),
+                        selected: _list == k,
+                        onSelected: (_) => setState(() => _list = k),
+                      ),
+                  ],
                 ),
-            ],
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(t(context, 'set_last_watched')),
+                  value: _pin,
+                  onChanged: (v) => setState(() => _pin = v),
+                ),
+              ],
+            ),
           ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t(context, 'set_last_watched')),
-            value: _pin,
-            onChanged: (v) => setState(() => _pin = v),
+          const SizedBox(height: 14),
+          Glass(
+            child: Column(
+              children: [
+                _row('overall', _overall, (v) => setState(() => _overall = v), size: 38),
+                const Divider(height: 24),
+                _row('plot', _plot, (v) => setState(() => _plot = v)),
+                _row('acting', _acting, (v) => setState(() => _acting = v)),
+                _row('sound', _pacing, (v) => setState(() => _pacing = v)),
+                _row('aesthetic', _aesthetic, (v) => setState(() => _aesthetic = v)),
+              ],
+            ),
           ),
-          const Divider(),
-          _row('overall', _overall, (v) => setState(() => _overall = v), size: 38),
-          const Divider(),
-          _row('acting', _acting, (v) => setState(() => _acting = v)),
-          _row('cinematography', _cine, (v) => setState(() => _cine = v)),
-          _row('plot', _plot, (v) => setState(() => _plot = v)),
-          _row('aesthetic', _aesthetic, (v) => setState(() => _aesthetic = v)),
-          _row('sound', _sound, (v) => setState(() => _sound = v)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           TextField(
             controller: _review,
             minLines: 3,
             maxLines: 6,
-            decoration: fieldDec(label: t(context, 'review')),
+            decoration: fieldDec(context, label: t(context, 'review')),
           ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(t(context, _suggest ? 'suggest' : 'do_not_suggest')),
-            value: _suggest,
-            onChanged: (v) => setState(() => _suggest = v),
+          const SizedBox(height: 14),
+          Glass(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t(context, _suggest ? 'suggest' : 'do_not_suggest')),
+              value: _suggest,
+              onChanged: (v) => setState(() => _suggest = v),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           FilledButton(
             onPressed: _saving ? null : _save,
             child: Text(t(context, 'save')),

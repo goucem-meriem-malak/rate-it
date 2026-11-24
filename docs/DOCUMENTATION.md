@@ -17,7 +17,7 @@ A private Android app where a small group of friends (about 5 to 10) log shows a
 | Feed | Member avatars, then five sideways rows: Last watched, Must watch, Favorites, Meh, Avoid |
 | Search | Search TMDB by title |
 | Title | Poster, details, "Add to my list", and every friend's rating and review |
-| Add / edit entry | List, overall and 5 criteria stars, review, suggest toggle, set as last watched |
+| Add / edit entry | List, overall and 4 criteria stars (plot, acting, pacing, aesthetic), review, suggest toggle, set as last watched |
 | Profile | Avatar, counts, info, group code (own profile), four sideways list rows, language, sign out |
 
 ## 4. Rules used by the feed
@@ -32,7 +32,7 @@ A private Android app where a small group of friends (about 5 to 10) log shows a
 |---|---|---|
 | `groups` | the group code | `createdBy`, `createdAt` |
 | `profiles` | user id | `name`, `avatar` (emoji), `age`, `favShow`, `groupId`, `lastWatched` |
-| `entries` | `<uid>_<movie or tv>_<tmdbId>` | `uid`, `groupId`, title info (`title`, `posterPath`, `genres`, `year`, ...), `list`, ratings (`overall`, `acting`, `cinematography`, `plot`, `aesthetic`, `sound`; 0 = not rated), `review`, `suggest`, `updatedAt` |
+| `entries` | `<uid>_<movie or tv>_<tmdbId>` | `uid`, `groupId`, title info (`title`, `posterPath`, `genres`, `year`, ...), `list`, ratings (`overall`, `plot`, `acting`, `aesthetic`, `sound`; 0 = not rated. `sound` holds the *Pacing* rating), `review`, `suggest`, `updatedAt` |
 
 Title info is copied into each entry so the feed does not need extra lookups.
 

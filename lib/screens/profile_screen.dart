@@ -57,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
       uid: uid,
       builder: (context, p, entries) {
         if (p == null) {
-          return Scaffold(
+          return GlassScaffold(
               appBar: AppBar(),
               body: const Center(child: CircularProgressIndicator()));
         }
@@ -84,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
         });
         final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
-        return Scaffold(
+        return GlassScaffold(
           appBar: AppBar(
             title: Text(p.name),
             actions: [
@@ -97,22 +97,32 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           body: ListView(
-            padding: const EdgeInsets.only(bottom: 32),
+            padding: const EdgeInsets.only(bottom: 120),
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
                 child: Row(
                   children: [
                     AvatarCircle(emoji: p.avatar, radius: 40),
-                    const SizedBox(width: 12),
-                    _count(context, '${watched.length}', t(context, 'watched')),
-                    _count(context, '$watchingCount', t(context, 'watching')),
-                    _count(context, '$droppedCount', t(context, 'dropped')),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Glass(
+                        radius: 22,
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                        child: Row(
+                          children: [
+                            _count(context, '${watched.length}', t(context, 'watched')),
+                            _count(context, '$watchingCount', t(context, 'watching')),
+                            _count(context, '$droppedCount', t(context, 'dropped')),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -126,13 +136,10 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               if (_isMe && p.groupId.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-                  decoration: BoxDecoration(
-                    color: context.pinkSoft,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                Glass(
+                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  tint: context.pinkGlass,
+                  padding: const EdgeInsets.fromLTRB(18, 14, 8, 14),
                   child: Row(
                     children: [
                       Expanded(
@@ -168,13 +175,12 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 4),
               ProfileLists(profile: p, entries: entries),
               if (_isMe)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 28, 16, 0),
+                Glass(
+                  margin: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+                  padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Divider(),
-                      const SizedBox(height: 16),
                       Text(t(context, 'appearance'),
                           style: const TextStyle(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 8),
@@ -221,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
                         onPressed: () => FirebaseAuth.instance.signOut(),
                         child: Text(t(context, 'logout')),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       Text(t(context, 'tmdb_notice'),
                           style: TextStyle(fontSize: 11, color: context.muted)),
                     ],
@@ -261,6 +267,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       title: Text(t(context, 'edit_profile')),
       content: SingleChildScrollView(
         child: Column(
@@ -282,16 +289,18 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            TextField(controller: _name, decoration: fieldDec(label: t(context, 'name'))),
+            TextField(
+                controller: _name,
+                decoration: fieldDec(context, label: t(context, 'name'))),
             const SizedBox(height: 10),
             TextField(
                 controller: _age,
                 keyboardType: TextInputType.number,
-                decoration: fieldDec(label: t(context, 'age'))),
+                decoration: fieldDec(context, label: t(context, 'age'))),
             const SizedBox(height: 10),
             TextField(
                 controller: _fav,
-                decoration: fieldDec(label: t(context, 'fav_show'))),
+                decoration: fieldDec(context, label: t(context, 'fav_show'))),
           ],
         ),
       ),

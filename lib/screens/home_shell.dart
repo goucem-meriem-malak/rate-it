@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../models.dart';
 import '../services.dart';
-import '../theme.dart';
 import '../widgets.dart';
 import 'feed_screen.dart';
 import 'profile_screen.dart';
@@ -23,7 +22,7 @@ class _HomeShellState extends State<HomeShell> {
   late final Stream<DocumentSnapshot<Map<String, dynamic>>> _me = Db.myProfileDoc();
   bool _ready = false; // becomes true once the server has confirmed the profile
 
-  Widget _centered(Widget child) => Scaffold(
+  Widget _centered(Widget child) => GlassScaffold(
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -65,7 +64,8 @@ class _HomeShellState extends State<HomeShell> {
         }
         Db.groupId = p.groupId; // must be set before the screens below read data
         final uid = Db.uid;
-        return Scaffold(
+        return GlassScaffold(
+          extendBody: true,
           body: IndexedStack(
             index: _index,
             children: [
@@ -74,28 +74,14 @@ class _HomeShellState extends State<HomeShell> {
               ProfileScreen(uid: uid),
             ],
           ),
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: context.hairline)),
-            ),
-            child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
-              destinations: [
-                NavigationDestination(
-                    icon: const Icon(Icons.home_outlined),
-                    selectedIcon: const Icon(Icons.home_rounded),
-                    label: t(context, 'feed')),
-                NavigationDestination(
-                    icon: const Icon(Icons.search_rounded),
-                    selectedIcon: const Icon(Icons.search_rounded),
-                    label: t(context, 'search')),
-                NavigationDestination(
-                    icon: const Icon(Icons.person_outline_rounded),
-                    selectedIcon: const Icon(Icons.person_rounded),
-                    label: t(context, 'profile')),
-              ],
-            ),
+          bottomNavigationBar: GlassNavBar(
+            index: _index,
+            onTap: (i) => setState(() => _index = i),
+            items: [
+              NavItem(Icons.home_outlined, Icons.home_rounded, t(context, 'feed')),
+              NavItem(Icons.search_rounded, Icons.search_rounded, t(context, 'search')),
+              NavItem(Icons.person_outline_rounded, Icons.person_rounded, t(context, 'profile')),
+            ],
           ),
         );
       },

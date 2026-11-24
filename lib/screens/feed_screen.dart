@@ -43,7 +43,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GlassScaffold(
       appBar: AppBar(
         title: Text(t(context, 'app_name'),
             style: const TextStyle(
@@ -100,13 +100,13 @@ class _FeedScreenState extends State<FeedScreen> {
                       : a.name.compareTo(b.name));
 
               return ListView(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 120),
                 children: [
                   SizedBox(
                     height: 96,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
                       itemCount: members.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 6),
                       itemBuilder: (context, i) {
@@ -122,7 +122,6 @@ class _FeedScreenState extends State<FeedScreen> {
                       },
                     ),
                   ),
-                  const Divider(),
                   if (es.data!.metadata.isFromCache)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),

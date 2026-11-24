@@ -28,15 +28,14 @@
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshots/login.jpg" width="200" alt="Sign in"><br><sub>Sign in</sub></td>
-    <td align="center"><img src="docs/screenshots/signup.jpg" width="200" alt="Create account"><br><sub>Create a group or join with a code</sub></td>
-    <td align="center"><img src="docs/screenshots/feed.jpg" width="200" alt="Feed"><br><sub>Group feed</sub></td>
+    <td align="center"><img src="docs/screenshots/01-login.png" width="200" alt="Sign in"><br><sub>Sign in</sub></td>
+    <td align="center"><img src="docs/screenshots/02-signup.png" width="200" alt="Create account"><br><sub>Create a group or join with a code</sub></td>
+    <td align="center"><img src="docs/screenshots/03-feed.png" width="200" alt="Feed"><br><sub>Group feed</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/search.jpg" width="200" alt="Search"><br><sub>Search shows and movies</sub></td>
-    <td align="center"><img src="docs/screenshots/rating.jpg" width="200" alt="Title details"><br><sub>Details and what friends say</sub></td>
-    <td align="center"><img src="docs/screenshots/profile1.jpg" width="200" alt="Profile"><br><sub>Profile and lists 1</sub></td>
-    <td align="center"><img src="docs/screenshots/profile2.jpg" width="200" alt="Profile"><br><sub>Profile and lists 2</sub></td>
+    <td align="center"><img src="docs/screenshots/04-search.png" width="200" alt="Search"><br><sub>Search shows and movies</sub></td>
+    <td align="center"><img src="docs/screenshots/05-title.png" width="200" alt="Title details"><br><sub>Details and what friends say</sub></td>
+    <td align="center"><img src="docs/screenshots/06-profile.png" width="200" alt="Profile"><br><sub>Profile and lists</sub></td>
   </tr>
 </table>
 
@@ -44,13 +43,14 @@
 
 - **Private groups.** Create a group and get a 6-character code, or join a friend's group with theirs. Groups cannot see each other.
 - **Log what you watch.** Search shows and movies, then put them in *Watching*, *Watched* or *Dropped*.
-- **Detailed ratings.** Overall stars plus acting, cinematography, plot, visual style and pacing/sound. Add a review and a *Suggest / Do not suggest* tag.
+- **Detailed ratings.** Overall stars plus plot, acting, pacing and aesthetic. Add a review and a *Suggest / Do not suggest* tag.
 - **Last watched.** One pinned show per person.
 - **Friends' opinions.** Open any title to see every friend's ratings and review, then add it to your own list.
 - **Group feed.** *Last watched*, *Must watch*, *Favorites*, *Meh* and *Avoid*, each scrolling sideways.
 - **Profiles.** Avatar, age, favorite show, top rated, most watched genre and your lists.
 - **English and Arabic**, with a full right-to-left layout.
-- **Light and dark mode.** Follows your phone, or choose one in your profile.
+- **Glass design, light and dark mode.** Frosted-glass panels on a soft pink glow. Follows your phone, or choose in your profile.
+- **Smooth search.** Shimmer placeholders while loading and a one-tap clear button.
 - **Works offline.** Saved data stays readable and changes sync when you are back online.
 
 ## Tech stack
@@ -71,7 +71,7 @@ You need [Flutter](https://docs.flutter.dev/get-started/install) and an Android 
 
 1. **Get the code**
    ```bash
-   git clone https://github.com/goucem-meriem-malak/rate-it.git
+   git clone https://github.com/YOUR_USERNAME/rate-it.git
    cd rate-it
    flutter pub get
    ```
@@ -97,7 +97,6 @@ flutter build apk --release --dart-define-from-file=secrets/keys.json
 More detail, including common build errors, is in [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md).
 
 ## Project structure
-
 
 ```
 lib/

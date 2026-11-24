@@ -21,7 +21,7 @@ service cloud.firestore {
     function okEntry(d) {
       return d.list in ['watching', 'watched', 'dropped']
         && okRating(d.overall) && okRating(d.acting)
-        && okRating(d.cinematography) && okRating(d.plot)
+        && okRating(d.plot)
         && okRating(d.aesthetic) && okRating(d.sound)
         && d.suggest is bool;
     }

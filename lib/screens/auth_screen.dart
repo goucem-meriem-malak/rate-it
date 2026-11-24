@@ -65,114 +65,125 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    return Scaffold(
+    return GlassScaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _form,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: TextButton(
-                        onPressed: () => setAppLanguage(isAr ? 'en' : 'ar'),
-                        child: Text(isAr ? 'English' : 'العربية'),
-                      ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton(
+                      onPressed: () => setAppLanguage(isAr ? 'en' : 'ar'),
+                      child: Text(isAr ? 'English' : 'العربية'),
                     ),
-                    const SizedBox(height: 8),
-                    const Center(child: BrandLogo(size: 96)),
-                    const SizedBox(height: 16),
-                    Text(t(context, 'app_name'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 34, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 4),
-                    Text(t(context, 'tagline'),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: context.muted)),
-                    const SizedBox(height: 28),
-                    if (_signUp) ...[
-                      TextFormField(
-                        controller: _name,
-                        decoration: fieldDec(label: t(context, 'name')),
-                        validator: _required,
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: fieldDec(label: t(context, 'email')),
-                      validator: _required,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _pass,
-                      obscureText: true,
-                      decoration: fieldDec(label: t(context, 'password')),
-                      validator: _required,
-                    ),
-                    if (_signUp) ...[
-                      const SizedBox(height: 16),
-                      SegmentedButton<bool>(
-                        showSelectedIcon: false,
-                        segments: [
-                          ButtonSegment(
-                              value: false, label: Text(t(context, 'have_code'))),
-                          ButtonSegment(
-                              value: true, label: Text(t(context, 'new_group'))),
+                  ),
+                  const SizedBox(height: 4),
+                  const Center(child: BrandLogo(size: 96)),
+                  const SizedBox(height: 16),
+                  Text(t(context, 'app_name'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 4),
+                  Text(t(context, 'tagline'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: context.muted)),
+                  const SizedBox(height: 24),
+                  Glass(
+                    radius: 28,
+                    padding: const EdgeInsets.all(20),
+                    child: Form(
+                      key: _form,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_signUp) ...[
+                            TextFormField(
+                              controller: _name,
+                              decoration: fieldDec(context, label: t(context, 'name')),
+                              validator: _required,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                          TextFormField(
+                            controller: _email,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: fieldDec(context, label: t(context, 'email')),
+                            validator: _required,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _pass,
+                            obscureText: true,
+                            decoration: fieldDec(context, label: t(context, 'password')),
+                            validator: _required,
+                          ),
+                          if (_signUp) ...[
+                            const SizedBox(height: 16),
+                            SegmentedButton<bool>(
+                              showSelectedIcon: false,
+                              segments: [
+                                ButtonSegment(
+                                    value: false,
+                                    label: Text(t(context, 'have_code'))),
+                                ButtonSegment(
+                                    value: true,
+                                    label: Text(t(context, 'new_group'))),
+                              ],
+                              selected: {_createGroup},
+                              onSelectionChanged: (s) =>
+                                  setState(() => _createGroup = s.first),
+                            ),
+                            const SizedBox(height: 12),
+                            if (_createGroup)
+                              Text(t(context, 'new_group_hint'),
+                                  style: TextStyle(color: context.muted))
+                            else
+                              TextFormField(
+                                controller: _code,
+                                textCapitalization: TextCapitalization.characters,
+                                decoration: fieldDec(context, label: t(context, 'invite')),
+                                validator: _required,
+                              ),
+                          ],
+                          if (_error != null) ...[
+                            const SizedBox(height: 12),
+                            Text(_error!,
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error)),
+                          ],
+                          const SizedBox(height: 20),
+                          FilledButton(
+                            onPressed: _busy ? null : _submit,
+                            child: _busy
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white))
+                                : Text(t(context, _signUp ? 'sign_up' : 'sign_in')),
+                          ),
                         ],
-                        selected: {_createGroup},
-                        onSelectionChanged: (s) =>
-                            setState(() => _createGroup = s.first),
                       ),
-                      const SizedBox(height: 12),
-                      if (_createGroup)
-                        Text(t(context, 'new_group_hint'),
-                            style: TextStyle(color: context.muted))
-                      else
-                        TextFormField(
-                          controller: _code,
-                          textCapitalization: TextCapitalization.characters,
-                          decoration: fieldDec(label: t(context, 'invite')),
-                          validator: _required,
-                        ),
-                    ],
-                    if (_error != null) ...[
-                      const SizedBox(height: 12),
-                      Text(_error!,
-                          style:
-                              TextStyle(color: Theme.of(context).colorScheme.error)),
-                    ],
-                    const SizedBox(height: 20),
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: _busy
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : Text(t(context, _signUp ? 'sign_up' : 'sign_in')),
                     ),
-                    const SizedBox(height: 4),
-                    TextButton(
-                      onPressed: _busy
-                          ? null
-                          : () => setState(() {
-                                _signUp = !_signUp;
-                                _error = null;
-                              }),
-                      child: Text(t(context, _signUp ? 'have_account' : 'no_account')),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() {
+                              _signUp = !_signUp;
+                              _error = null;
+                            }),
+                    child: Text(t(context, _signUp ? 'have_account' : 'no_account')),
+                  ),
+                ],
               ),
             ),
           ),
